@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SlideState:PlayerBaseState
+public class SlideState:IBaseState
 {
     private Player player;
+
     public SlideState(Player player)
     {
         this.player = player;
@@ -12,12 +13,13 @@ public class SlideState:PlayerBaseState
     public void Enter()
     {
         player.playerRigidbody.gravityScale = 0;
+        player.canDash = true;
         Debug.Log("slide enter");
     }
 
     public void Update()
     {
-        if (Input.GetKeyUp(KeyCode.Z))
+        if (Input.GetKeyUp(KeyCode.Z) || player.onWall == false) 
         {
             player.SetPlayerState(new MoveState(player));
         }
@@ -40,6 +42,7 @@ public class SlideState:PlayerBaseState
     public void Finish()
     {
         Debug.Log("slide finish");
+        player.playerRigidbody.gravityScale = player.normalGravity;
 
     }
 

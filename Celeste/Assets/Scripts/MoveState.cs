@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveState : PlayerBaseState
+public class MoveState : IBaseState
 {
 
 
@@ -32,7 +32,7 @@ public class MoveState : PlayerBaseState
         else if (velocity.x > 0)
             player.forward = 1;
 
-        if (Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.C)&&(player.onGround||player.onWall))
             player.SetPlayerState(new JumpState(player));
         else if (player.canDash && Input.GetKeyDown(KeyCode.X))
             player.SetPlayerState(new DashState(player));
