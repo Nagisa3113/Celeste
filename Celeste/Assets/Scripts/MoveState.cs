@@ -24,20 +24,42 @@ public class MoveState : IBaseState
 
         Vector2 velocity = player.playerRigidbody.velocity;
         float h = Input.GetAxisRaw("Horizontal");
-        player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
+        if (player.onWall)
+        {
+            if (player.forward == -1)
+            {
+                if (h < 0)
+                    player.playerRigidbody.gravityScale = 1;
+                else
+                    player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
+
+            }
+            if (player.forward == 1)
+            {
+                if (h > 0)
+                    player.playerRigidbody.gravityScale = 1;
+                else
+                    player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
+
+            }
 
 
-        if (velocity.x < 0)
-            player.forward = -1;
-        else if (velocity.x > 0)
-            player.forward = 1;
+        }
 
-        if (Input.GetKeyDown(KeyCode.C)&&(player.onGround||player.onWall))
+        else
+        {
+            player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
+
+        }
+
+
+        if (Input.GetKeyDown(KeyCode.C) && (player.onGround || player.onWall))
             player.SetPlayerState(new JumpState(player));
         else if (player.canDash && Input.GetKeyDown(KeyCode.X))
             player.SetPlayerState(new DashState(player));
         else if (player.onWall && Input.GetKey(KeyCode.Z))
             player.SetPlayerState(new SlideState(player));
+
     }
 
     public void Finish()

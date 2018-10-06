@@ -5,9 +5,13 @@ using UnityEngine;
 public class JumpState :IBaseState
 {
     private Player player;
-    private float curJump = 0;//当前跳跃
-    private int minJump = 4;//最小跳跃
-    private int maxJump = 10;//最大跳跃
+
+
+    private float jumpTimeCounnter;
+    private float jumpTime = 0.3f;
+    private bool isJumping;
+    private Vector2 velocity;
+
     public JumpState(Player player)
     {
         this.player = player;
@@ -15,35 +19,57 @@ public class JumpState :IBaseState
     public void Enter()
     {
         Debug.Log("jump enter");
-        curJump = minJump;
     }
 
     public void Update()
     {
-        curJump++;
-        if (player.onGround && Input.GetKeyUp(KeyCode.C))
+        float h = Input.GetAxisRaw("Horizontal");
+
+
+        if (player.onGround) 
         {
-            Vector2 velocity = player.playerRigidbody.velocity;
-            velocity.y = player.jumpSpeed * (curJump / maxJump);
+            isJumping = true;
+            jumpTimeCounnter = jumpTime;
+            velocity.y = player.jumpSpeed;
+            velocity.x = h * player.moveSpeed;
             player.playerRigidbody.velocity = velocity;
+        }
+
+        if (Input.GetKey(KeyCode.C) && isJumping) 
+        {
+            if (jumpTimeCounnter > 0.1f) 
+            {
+                velocity.y = player.jumpSpeed;
+                velocity.x = h * player.moveSpeed;
+                player.playerRigidbody.velocity = velocity;
+                jumpTimeCounnter -= Time.deltaTime;
+            }
+            else
+            {
+                isJumping = false;
+            }
+        }
+        else
+        {
             player.SetPlayerState(new MoveState(player));
 
         }
-        else if (player.onGround && curJump >= maxJump) 
+
+        if (Input.GetKeyUp(KeyCode.C))
         {
-            Vector2 velocity = player.playerRigidbody.velocity;
-            velocity.y = player.jumpSpeed;
-            player.playerRigidbody.velocity = velocity;
+            isJumping = false;
             player.SetPlayerState(new MoveState(player));
 
         }
-         
-        else if (player.onWall)
+
+
+
+
+
+        else if (player.onWall && Input.GetKey(KeyCode.Z)) 
         {
-            Vector2 velocity = player.playerRigidbody.velocity;
-            velocity.x = -player.forward * player.jumpSpeed * 10;
-            velocity.y = player.jumpSpeed;
-            player.playerRigidbody.velocity = velocity;
+
+            player.transform.Translate(Vector2.up * Time.deltaTime * player.dashSpeed);
             player.SetPlayerState(new MoveState(player));
 
         }

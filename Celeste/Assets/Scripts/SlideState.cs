@@ -6,6 +6,7 @@ public class SlideState:IBaseState
 {
     private Player player;
 
+
     public SlideState(Player player)
     {
         this.player = player;
@@ -23,7 +24,6 @@ public class SlideState:IBaseState
         {
             player.SetPlayerState(new MoveState(player));
         }
-
         float v = Input.GetAxisRaw("Vertical");
 
         player.playerRigidbody.velocity = new Vector2(0, v * player.slideSpeed);
@@ -36,13 +36,13 @@ public class SlideState:IBaseState
         if (Input.GetKeyDown(KeyCode.C))
         {
             player.SetPlayerState(new JumpState(player));
-
         }
     }
     public void Finish()
     {
-        Debug.Log("slide finish");
         player.playerRigidbody.gravityScale = player.normalGravity;
+        player.transform.Translate(new Vector2(player.forward, 0) * Time.deltaTime * player.dashSpeed * 1f);
+        Debug.Log("slide finish");
 
     }
 

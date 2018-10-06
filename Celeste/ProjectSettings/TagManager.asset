@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Ground
   - Wall
+  - DashGem
+  - Stone
   layers:
   - Default
   - TransparentFX
