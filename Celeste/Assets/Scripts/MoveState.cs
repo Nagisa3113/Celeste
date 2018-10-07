@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class MoveState : IBaseState
 {
-
-
     private Player player;
+
     public MoveState(Player player)
     {
         this.player = player;
@@ -21,51 +20,43 @@ public class MoveState : IBaseState
 
     public void Update () 
     {
-
-        Vector2 velocity = player.playerRigidbody.velocity;
-        float h = Input.GetAxisRaw("Horizontal");
-        if (player.onWall)
-        {
-            if (player.forward == -1)
-            {
-                if (h < 0)
-                    player.playerRigidbody.gravityScale = 1;
-                else
-                    player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
-
-            }
-            if (player.forward == 1)
-            {
-                if (h > 0)
-                    player.playerRigidbody.gravityScale = 1;
-                else
-                    player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
-
-            }
-
-
-        }
-
-        else
-        {
-            player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
-
-        }
-
-
         if (Input.GetKeyDown(KeyCode.C) && (player.onGround || player.onWall))
             player.SetPlayerState(new JumpState(player));
         else if (player.canDash && Input.GetKeyDown(KeyCode.X))
             player.SetPlayerState(new DashState(player));
-        else if (player.onWall && Input.GetKey(KeyCode.Z))
+        else if (player.onWall && Input.GetKey(KeyCode.Z) && player.slideTime > 0) 
             player.SetPlayerState(new SlideState(player));
+    }
 
+    public void FixedUpdate()
+    {
+        Vector2 velocity = player.playerRigidbody.velocity;
+        float h = Input.GetAxisRaw("Horizontal");
+        if (player.onWall)//接触墙且按方向键时在墙上慢速滑动
+        {
+            if (player.forward == -1)
+            {
+                if (h < 0 && player.playerRigidbody.velocity.y < 0) 
+                    player.playerRigidbody.gravityScale = 1;
+                else
+                    player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
+            }
+            if (player.forward == 1)
+            {
+                if (h > 0 && player.playerRigidbody.velocity.y < 0) 
+                    player.playerRigidbody.gravityScale = 1;
+                else
+                    player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
+            }
+        }
+        else 
+        {
+            player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
+        }
     }
 
     public void Finish()
     {
         Debug.Log("move finish");
     }
-
-
 }

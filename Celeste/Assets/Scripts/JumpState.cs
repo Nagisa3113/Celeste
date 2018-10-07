@@ -5,11 +5,9 @@ using UnityEngine;
 public class JumpState :IBaseState
 {
     private Player player;
-
-
-    private float jumpTimeCounnter;
-    private float jumpTime = 0.3f;
-    private bool isJumping;
+    private float jumpTimeCounter;//计时器
+    private float jumpTime = 0.25f;//最大跳跃时间
+    private bool isJumping;//是否跳跃
     private Vector2 velocity;
 
     public JumpState(Player player)
@@ -25,24 +23,22 @@ public class JumpState :IBaseState
     {
         float h = Input.GetAxisRaw("Horizontal");
 
-
         if (player.onGround) 
         {
             isJumping = true;
-            jumpTimeCounnter = jumpTime;
-            velocity.y = player.jumpSpeed;
+            jumpTimeCounter = jumpTime;
             velocity.x = h * player.moveSpeed;
             player.playerRigidbody.velocity = velocity;
         }
 
         if (Input.GetKey(KeyCode.C) && isJumping) 
         {
-            if (jumpTimeCounnter > 0.1f) 
+            if (jumpTimeCounter > 0) 
             {
-                velocity.y = player.jumpSpeed;
+                velocity.y = player.jumpSpeed.Evaluate(jumpTimeCounter);
                 velocity.x = h * player.moveSpeed;
                 player.playerRigidbody.velocity = velocity;
-                jumpTimeCounnter -= Time.deltaTime;
+                jumpTimeCounter -= Time.deltaTime;
             }
             else
             {
@@ -52,7 +48,6 @@ public class JumpState :IBaseState
         else
         {
             player.SetPlayerState(new MoveState(player));
-
         }
 
         if (Input.GetKeyUp(KeyCode.C))
@@ -61,26 +56,22 @@ public class JumpState :IBaseState
             player.SetPlayerState(new MoveState(player));
 
         }
-
-
-
-
-
         else if (player.onWall && Input.GetKey(KeyCode.Z)) 
         {
-
-            player.transform.Translate(Vector2.up * Time.deltaTime * player.dashSpeed);
+            player.playerRigidbody.velocity = new Vector2(0, player.slideSpeed * 10);
             player.SetPlayerState(new MoveState(player));
-
         }
+    }
 
+
+    public void FixedUpdate()
+    {
 
     }
 
     public void Finish()
     {
         Debug.Log("jump finish");
-
     }
 
 }

@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class DashState :IBaseState
 {
-
+    private Player player;
     private int i = 0;
     public int dashTime = 15;//冲刺持续时间
-    public int dashDirect = 0;
-    public bool startDash = false;
-    private Player player;
+    public int dashDirect = 0;//冲刺方向
+    public bool startDash = false;//开始冲刺
+
     public DashState(Player player)
     {
         this.player = player;
@@ -20,7 +20,7 @@ public class DashState :IBaseState
         startDash = true;
         player.playerRigidbody.gravityScale = 0;
         player.playerRigidbody.velocity = Vector2.zero;
-        Debug.Log("dash enter can dash is false");
+        Debug.Log("dash enter");
     }
 
     public void Update()
@@ -76,6 +76,13 @@ public class DashState :IBaseState
             }
             startDash = false;
         }
+
+        if (i == dashTime)
+            player.SetPlayerState(new MoveState(player));
+    }
+
+    public void FixedUpdate()
+    {
         if (dashDirect != 0)
         {
             switch (dashDirect)
@@ -113,10 +120,7 @@ public class DashState :IBaseState
             }
             i++;
         }
-        if (i == dashTime)
-            player.SetPlayerState(new MoveState(player));
     }
-
 
     public void Finish()
     {
