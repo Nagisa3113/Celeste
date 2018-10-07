@@ -36,11 +36,12 @@ public class Player : MonoBehaviour {
     {
         playerRigidbody = GetComponent<Rigidbody2D>();
         normalGravity = playerRigidbody.gravityScale;
+        playerRigidbody.velocity = Vector2.zero;
+        state = new MoveState(this);
     }
 
     public Player()
     {
-        state = new MoveState(this);
     }
 
     public void SetPlayerState(IBaseState newState)
@@ -74,13 +75,11 @@ public class Player : MonoBehaviour {
         if (Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow))
         {
             timeCounter += Time.fixedDeltaTime;
-            if(timeCounter<0.3f)
             h  = moveCurve.Evaluate(timeCounter);
         }
         else
         {
             timeCounter -= Time.fixedDeltaTime;
-            if(timeCounter>0)
             h = slowCurve.Evaluate(timeCounter);
         }
        
@@ -122,6 +121,7 @@ public class Player : MonoBehaviour {
     {
         if (collision.collider.tag == "Thorn") 
         {
+
             playerObject.SetActive(false);
                 
         }

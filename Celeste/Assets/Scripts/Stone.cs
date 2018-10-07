@@ -20,14 +20,18 @@ public class Stone : MonoBehaviour {
             timeCounter -= Time.deltaTime;
 
         if (timeCounter <= 0)
+        {
             stone.SetActive(false);
+            b = false;
+            timeCounter = 1f;
+        }
+          
     }
 
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.tag == "Player")
-
             b = true;
        
 

@@ -10,9 +10,9 @@ public class SceneControl : MonoBehaviour {
     public float curTime1;
     public float curTime2;
     public float curTime3;
-
-    public Transform pos1;//存档点位置
-    public Transform pos2;
+    public Transform archivePos;//存档点记录
+    public Transform pos1;//存档点1
+    public Transform pos2;//存档点2
 
     public float rePlayer = 0.5f;
     public float reGemTime = 2;
@@ -20,7 +20,6 @@ public class SceneControl : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        player.transform.position =pos1.position;
 
     }
 
@@ -42,7 +41,7 @@ public class SceneControl : MonoBehaviour {
             curTime2 += Time.deltaTime;
         }
 
-        if (curTime1 >= reStone)
+        if (curTime2 >= reStone)
         {
             stone.SetActive(true);
             curTime2 = 0;
@@ -55,12 +54,14 @@ public class SceneControl : MonoBehaviour {
 
         if (curTime3 >= rePlayer)
         {
-            player.SetActive(true);
-            if (transform.position.x < 14)
-                player.transform.position = pos1.position;
-            if (transform.position.x > 14)
-                player.transform.position = pos2.position;
+            if (player.transform.position.x < 14)
+                archivePos.position = pos1.position;
+            if (player.transform.position.x > 14)
+                archivePos.position = pos2.position;
+            player.transform.position = archivePos.position;
             curTime3 = 0;
+            player.SetActive(true);
+
         }
 
 
