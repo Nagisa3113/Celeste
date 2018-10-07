@@ -6,7 +6,7 @@ public class JumpState :IBaseState
 {
     private Player player;
     private float jumpTimeCounter;//计时器
-    private float jumpTime = 0.25f;//最大跳跃时间
+    private float jumpTime = 0.27f;//最大跳跃时间
     private bool isJumping;//是否跳跃
     private Vector2 velocity;
 
@@ -16,18 +16,21 @@ public class JumpState :IBaseState
     }
     public void Enter()
     {
+        player.playerRigidbody.gravityScale = 0f;
         Debug.Log("jump enter");
     }
 
     public void Update()
     {
-        float h = Input.GetAxisRaw("Horizontal");
-
         if (player.onGround) 
         {
             isJumping = true;
             jumpTimeCounter = jumpTime;
-            velocity.x = h * player.moveSpeed;
+            if (Mathf.Abs(player.playerRigidbody.velocity.x) > 0)
+                velocity.x = player.runCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
+            else
+                velocity.x = player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
+
             player.playerRigidbody.velocity = velocity;
         }
 
@@ -35,8 +38,12 @@ public class JumpState :IBaseState
         {
             if (jumpTimeCounter > 0) 
             {
-                velocity.y = player.jumpSpeed.Evaluate(jumpTimeCounter);
-                velocity.x = h * player.moveSpeed;
+                velocity.y = player.jumpCurve.Evaluate(jumpTimeCounter) * player.jumpSpeed;
+                if (Mathf.Abs(player.playerRigidbody.velocity.x) > 0)
+                    velocity.x = player.runCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
+                else
+                    velocity.x = player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
+                player.timeCounter -= Time.fixedDeltaTime;
                 player.playerRigidbody.velocity = velocity;
                 jumpTimeCounter -= Time.deltaTime;
             }
@@ -71,6 +78,7 @@ public class JumpState :IBaseState
 
     public void Finish()
     {
+        player.playerRigidbody.gravityScale = player.normalGravity;
         Debug.Log("jump finish");
     }
 

@@ -31,27 +31,26 @@ public class MoveState : IBaseState
     public void FixedUpdate()
     {
         Vector2 velocity = player.playerRigidbody.velocity;
-        float h = Input.GetAxisRaw("Horizontal");
         if (player.onWall)//接触墙且按方向键时在墙上慢速滑动
         {
             if (player.forward == -1)
             {
-                if (h < 0 && player.playerRigidbody.velocity.y < 0) 
+                if (player.h < 0 && player.playerRigidbody.velocity.y < 0)
                     player.playerRigidbody.gravityScale = 1;
                 else
-                    player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
+                    player.playerRigidbody.velocity = new Vector2(player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed, velocity.y);
             }
             if (player.forward == 1)
             {
-                if (h > 0 && player.playerRigidbody.velocity.y < 0) 
+                if (player.h > 0 && player.playerRigidbody.velocity.y < 0) 
                     player.playerRigidbody.gravityScale = 1;
                 else
-                    player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
+                    player.playerRigidbody.velocity = new Vector2(player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed, velocity.y);
             }
         }
         else 
         {
-            player.playerRigidbody.velocity = new Vector2(h * player.moveSpeed, velocity.y);
+            player.playerRigidbody.velocity = new Vector2(player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed, velocity.y);
         }
     }
 

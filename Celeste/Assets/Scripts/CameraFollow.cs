@@ -10,6 +10,7 @@ public class CameraFollow : MonoBehaviour {
     public Transform pos1;//固定位置
     public Transform pos2;
 
+
 	// Use this for initialization
 	void Start () {
         //offset = transform.position - playerPosition.transform.position;

@@ -5,24 +5,28 @@ using UnityEngine;
 public class Player : MonoBehaviour {
 
     public IBaseState state;
-
     public Rigidbody2D playerRigidbody;
     public GameObject playerObject;
-    public AnimationCurve jumpSpeed;//跳跃速度
     public LayerMask groundLayer;//用于检测地面
     public LayerMask wallLayer;//用于检测墙体
-    public Transform pos1;//存档点位置
-    public Transform pos2;
 
+
+    public AnimationCurve jumpCurve;//跳跃速度
+    public AnimationCurve moveCurve;
+    public AnimationCurve runCurve;
+    public AnimationCurve slowCurve;
+
+    public int forward = 1;//玩家朝向，1为右，-1为左
+
+    public float timeCounter = 0;//移动计时器
+    public float h;//
     public float moveSpeed = 5;//移动速度
-    //public float jumpSpeed = 3;//跳跃速度
+    public float jumpSpeed = 10;//跳跃速度
     public float dashSpeed = 40;//冲刺速度
     public float normalGravity;//获得玩家重力
     public float slideSpeed = 2;//爬墙速度
     public float slideTime = 3;//最大爬墙时间
     public float maxFallSpeed = -6;//最大下落速度
-
-    public int forward = 1;//玩家朝向
 
     public bool onGround = false;//是否在地面
     public bool canDash = false;//是否能冲刺
@@ -32,7 +36,6 @@ public class Player : MonoBehaviour {
     {
         playerRigidbody = GetComponent<Rigidbody2D>();
         normalGravity = playerRigidbody.gravityScale;
-        playerObject.transform.position = pos1.position;
     }
 
     public Player()
@@ -65,10 +68,30 @@ public class Player : MonoBehaviour {
 
 
 
-
-
     private void FixedUpdate()
     {
+
+        if (Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow))
+        {
+            timeCounter += Time.fixedDeltaTime;
+            if(timeCounter<0.3f)
+            h  = moveCurve.Evaluate(timeCounter);
+        }
+        else
+        {
+            timeCounter -= Time.fixedDeltaTime;
+            if(timeCounter>0)
+            h = slowCurve.Evaluate(timeCounter);
+        }
+       
+
+        if (timeCounter > 0.3f)
+            timeCounter = 0.3f;
+        if (timeCounter < 0)
+            timeCounter = 0;
+
+
+
         Vector2 velocity = playerRigidbody.velocity;
         if (velocity.y < maxFallSpeed)
         {
@@ -82,13 +105,14 @@ public class Player : MonoBehaviour {
             playerObject.GetComponent<Renderer>().material.color = Color.green;
 
 
-        if (playerRigidbody.velocity.x < 0)
+        if (Input.GetAxis("Horizontal") < 0)
             forward = -1;
-        else if (playerRigidbody.velocity.x > 0)
+        else if (Input.GetAxis("Horizontal") > 0)
             forward = 1;
 
-        state.FixedUpdate();
 
+
+        state.FixedUpdate();
 
 
     }
@@ -98,17 +122,10 @@ public class Player : MonoBehaviour {
     {
         if (collision.collider.tag == "Thorn") 
         {
-            //playerObject.SetActive(false);
-            if(transform.position.x<14)
-                playerObject.transform.position = pos1.position;
-            if (transform.position.x>14)
-                playerObject.transform.position = pos2.position;
-
-            //playerObject.SetActive(true);
-
+            playerObject.SetActive(false);
+                
         }
     }
-
 
 
 
