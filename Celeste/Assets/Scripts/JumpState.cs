@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class JumpState :IBaseState
+public class JumpState : IBaseState
 {
     private Player player;
     private float jumpTimeCounter;//计时器
     private float jumpTime = 0.27f;//最大跳跃时间
-    private bool isJumping;//是否跳跃
+    private bool isRun;
     private Vector2 velocity;
 
     public JumpState(Player player)
@@ -16,64 +16,59 @@ public class JumpState :IBaseState
     }
     public void Enter()
     {
+        player.slideJump = false;
+        player.offJump = false;
         player.playerRigidbody.gravityScale = 0f;
+
+        jumpTimeCounter = jumpTime;
+
+        if (Mathf.Abs(player.playerRigidbody.velocity.x) > 0)
+            isRun = true;
+
         Debug.Log("jump enter");
+
     }
 
     public void Update()
     {
-        if (player.onGround) 
-        {
-            isJumping = true;
-            jumpTimeCounter = jumpTime;
-            if (Mathf.Abs(player.playerRigidbody.velocity.x) > 0)
-                velocity.x = player.runCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
-            else
-                velocity.x = player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
 
-            player.playerRigidbody.velocity = velocity;
-        }
-
-        if (Input.GetKey(KeyCode.C) && isJumping) 
-        {
-            if (jumpTimeCounter > 0) 
-            {
-                velocity.y = player.jumpCurve.Evaluate(jumpTimeCounter) * player.jumpSpeed;
-                if (Mathf.Abs(player.playerRigidbody.velocity.x) > 0)
-                    velocity.x = player.runCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
-                else
-                    velocity.x = player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
-                player.timeCounter -= Time.fixedDeltaTime;
-                player.playerRigidbody.velocity = velocity;
-                jumpTimeCounter -= Time.deltaTime;
-            }
-            else
-            {
-                isJumping = false;
-            }
-        }
-        else
-        {
-            player.SetPlayerState(new MoveState(player));
-        }
-
-        if (Input.GetKeyUp(KeyCode.C))
-        {
-            isJumping = false;
-            player.SetPlayerState(new MoveState(player));
-
-        }
-        else if (player.onWall && Input.GetKey(KeyCode.Z)) 
-        {
-            player.playerRigidbody.velocity = new Vector2(0, player.slideSpeed * 10);
-            player.SetPlayerState(new MoveState(player));
-        }
     }
 
 
     public void FixedUpdate()
     {
+        if (player.lastState is SlideState)
+        {
+            if (player.onLeftWall && player.forward == -1 || player.onRightWall && player.forward == 1)
+            {
+                player.StartCoroutine("SlideJump");
+                if (player.slideJump)
+                    player.SetPlayerState(new SlideState(player));
+            }
 
+            else
+            {
+                player.StartCoroutine("OffJump");
+                if (player.offJump)
+                    player.SetPlayerState(new MoveState(player));
+            }
+
+        }
+
+        else if (Input.GetKey(KeyCode.C) && jumpTimeCounter > 0)
+        {
+            velocity.y = player.jumpCurve.Evaluate(jumpTimeCounter) * player.jumpSpeed;
+            if (isRun)
+                velocity.x = player.runCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
+            else
+                velocity.x = player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
+
+            player.playerRigidbody.velocity = velocity;
+
+            jumpTimeCounter -= Time.deltaTime;
+        }
+        else//如果不加else会只执行一次
+            player.SetPlayerState(new MoveState(player));
     }
 
     public void Finish()

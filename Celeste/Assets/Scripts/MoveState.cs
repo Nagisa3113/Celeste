@@ -18,37 +18,19 @@ public class MoveState : IBaseState
 
     }
 
-    public void Update () 
+    public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.C) && (player.onGround || player.onWall))
-            player.SetPlayerState(new JumpState(player));
-        else if (player.canDash && Input.GetKeyDown(KeyCode.X))
-            player.SetPlayerState(new DashState(player));
-        else if (player.onWall && Input.GetKey(KeyCode.Z) && player.slideTime > 0) 
-            player.SetPlayerState(new SlideState(player));
     }
 
     public void FixedUpdate()
     {
         Vector2 velocity = player.playerRigidbody.velocity;
-        if (player.onWall)//接触墙且按方向键时在墙上慢速滑动
+        if (player.onLeftWall && Input.GetKey(KeyCode.LeftArrow) || player.onRightWall && Input.GetKey(KeyCode.RightArrow))
         {
-            if (player.forward == -1)
-            {
-                if (player.h < 0 && player.playerRigidbody.velocity.y < 0)
-                    player.playerRigidbody.gravityScale = 1;
-                else
-                    player.playerRigidbody.velocity = new Vector2(player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed, velocity.y);
-            }
-            if (player.forward == 1)
-            {
-                if (player.h > 0 && player.playerRigidbody.velocity.y < 0) 
-                    player.playerRigidbody.gravityScale = 1;
-                else
-                    player.playerRigidbody.velocity = new Vector2(player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed, velocity.y);
-            }
+
+            player.playerRigidbody.velocity = new Vector2(0, -1);
         }
-        else 
+        else
         {
             player.playerRigidbody.velocity = new Vector2(player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed, velocity.y);
         }
