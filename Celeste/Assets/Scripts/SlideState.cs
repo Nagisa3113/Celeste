@@ -38,10 +38,7 @@ public class SlideState : IBaseState
 
     public void Finish()
     {
-        if (Input.GetKey(KeyCode.UpArrow))
-        {
-            player.StartCoroutine("SlideMove");
-        }
+ 
         player.playerRigidbody.gravityScale = player.normalGravity;
         player.playerRigidbody.velocity = Vector2.zero;
         Debug.Log("slide finish");

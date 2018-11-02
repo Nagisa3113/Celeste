@@ -14,10 +14,14 @@ public class MoveState : IBaseState
     public void Enter()
     {
         player.playerRigidbody.gravityScale = player.normalGravity;
+
         Debug.Log("move enter");
 
+        if (player.lastState is SlideState && Input.GetKey(KeyCode.UpArrow)) 
+        {
+            player.StartCoroutine("SlideMove");
+        }
     }
-
     public void Update()
     {
     }
@@ -32,7 +36,7 @@ public class MoveState : IBaseState
         }
         else
         {
-            player.playerRigidbody.velocity = new Vector2(player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed, velocity.y);
+            player.playerRigidbody.velocity = new Vector2(player.runCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed, velocity.y);
         }
     }
 

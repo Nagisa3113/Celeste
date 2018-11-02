@@ -29,9 +29,9 @@ class SlideCommand : Command
     {
         if (player.onWall && player.slideTime > 0)
             player.SetPlayerState(new SlideState(player));
-
     }
 }
+
 class InputHandler
 {
     public Command handlerInput()
@@ -44,8 +44,6 @@ class InputHandler
         return null;
     }
 
-    public static KeyCode mykey = KeyCode.C;
-    private
     Command ButtonZ = new SlideCommand();
     Command ButtonX = new DashCommand();
     Command buttonC = new JumpCommand();

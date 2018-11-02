@@ -61,7 +61,7 @@ public class JumpState : IBaseState
             if (isRun)
                 velocity.x = player.runCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
             else
-                velocity.x = player.h * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
+                velocity.x = player.moveCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
 
             player.playerRigidbody.velocity = velocity;
 

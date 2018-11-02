@@ -5,15 +5,13 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public IBaseState state;
-    public IBaseState lastState;
     public Rigidbody2D playerRigidbody;
     public GameObject playerObject;
 
+    public IBaseState state;//当前状态
+    public IBaseState lastState;//上个状态度
 
-
-    public LayerMask groundLayer;//用于检测地面
-    public LayerMask wallLayer;//用于检测墙体
+    public LayerMask objectLayer;//检测
 
     public AnimationCurve jumpCurve;//跳跃速度
     public AnimationCurve moveCurve;
@@ -27,23 +25,29 @@ public class Player : MonoBehaviour
 
     public float h;//
     public float timeCounter = 0;//移动计时器
-    public float moveSpeed = 5;//移动速度
-    public float jumpSpeed = 10;//跳跃速度
+    public float moveSpeed = 8;//移动速度
+    public float jumpSpeed = 8;//跳跃速度
 
 
     public bool startDash;//开始冲刺
     public bool canDash;//是否能冲刺
     public int dashDirect;//冲刺方向
     public int dashTime = 15;//冲刺持续时间
-    public float dashSpeed = 40;//冲刺速度
+    public float dashSpeed = 10;//冲刺速度
 
     public bool onWall;//是否在墙上
     public bool onLeftWall;//左边
-    public bool onRightWall;//右边
+    public bool onRightWall;//右边  
     public float slideSpeed = 2;//爬墙速度
     public float slideTime = 20f;//最大爬墙时间
     public bool slideJump;//爬墙跳跃
     public bool offJump;
+
+    PhysicsUpdate physics = new PhysicsUpdate();
+    SpriteUpdate sprite = new SpriteUpdate();
+
+    InputHandler hi = new InputHandler();
+
 
 
     private void Start()
@@ -68,29 +72,9 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        onGround = Physics2D.Raycast(transform.position, Vector2.down + Vector2.left, 0.85f, groundLayer) || Physics2D.Raycast(transform.position, Vector2.down + Vector2.right, 0.85f, groundLayer);
-        onLeftWall = Physics2D.Raycast(transform.position + new Vector3(0, -0.5f, 0), Vector2.left, 0.52f, wallLayer);
-        onRightWall = Physics2D.Raycast(transform.position + new Vector3(0, -0.5f, 0), Vector2.right, 0.52f, wallLayer);
-        onWall = onLeftWall || onRightWall;
-
-        if (forward == -1)
-            transform.localScale = new Vector3(-0.65f, 1, 1);
-        else
-            transform.localScale = new Vector3(0.65f, 1, 1);
-
-        if (onGround)
-        {
-            canDash = true;
-            slideTime = 10f;
-        }
-        if (canDash)
-            playerObject.GetComponent<Renderer>().material.color = Color.blue;
-        else
-            playerObject.GetComponent<Renderer>().material.color = Color.green;
-
+        physics.Update(this);
         state.Update();
-
-        InputHandler hi = new InputHandler();
+        sprite.Update(this);
         Command command = hi.handlerInput();
         if (command != null)
             command.execute(this);
@@ -99,50 +83,18 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (onLeftWall)
-        {
-            if (Input.GetKey(KeyCode.RightArrow))
-                forward = 1;
-            else
-                forward = -1;
-        }
-        if (onRightWall)
-        {
-            if (Input.GetKey(KeyCode.LeftArrow))
-                forward = -1;
-            else
-                forward = 1;
-        }
-        Move();
-        state.FixedUpdate();
-    }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.collider.tag == "Thorn")
-        {
-
-            playerObject.SetActive(false);
-
-        }
-    }
-
-    private void Move()
-    {
         if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow))
         {
             timeCounter += Time.fixedDeltaTime;
-            h = moveCurve.Evaluate(timeCounter);
         }
         else
         {
             timeCounter -= Time.fixedDeltaTime;
-            h = slowCurve.Evaluate(timeCounter);
         }
 
         if (timeCounter > 0.3f) timeCounter = 0.3f;
         if (timeCounter < 0) timeCounter = 0;
-
 
 
         Vector2 velocity = playerRigidbody.velocity;
@@ -157,6 +109,19 @@ public class Player : MonoBehaviour
             forward = -1;
         else if (Input.GetAxis("Horizontal") > 0)
             forward = 1;
+
+
+
+        state.FixedUpdate();
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.tag == "Thorn")
+        {
+            playerObject.SetActive(false);
+
+        }
     }
 
     public IEnumerator Dash()
@@ -256,7 +221,7 @@ public class Player : MonoBehaviour
     {
         for (int i = 0; i < 7; i++)
         {
-            transform.Translate(new Vector2(forward, 0) * Time.deltaTime * dashSpeed * 0.5f);
+            transform.Translate(new Vector2(forward, 0) * Time.deltaTime * 3f);
             yield return null;
         }
     }
@@ -265,25 +230,69 @@ public class Player : MonoBehaviour
     {
         for (int i = 0; i < 7; i++)
         {
-            transform.Translate(Vector2.up * Time.deltaTime * dashSpeed * 0.2f);
+            transform.Translate(Vector2.up * Time.deltaTime * 2f);
             yield return null;
         }
         slideJump = true;
     }
+
     public IEnumerator OffJump()
     {
         for (int i = 0; i < 7; i++)
         {
-            transform.Translate(new Vector2(forward, 0) * Time.deltaTime * dashSpeed * 0.2f + Vector2.up * Time.deltaTime * dashSpeed * 0.3f);
+            transform.Translate(new Vector2(forward, 0) * Time.deltaTime * 2f + Vector2.up * Time.deltaTime * 3f);
             yield return null;
         }
         offJump = true;
     }
 
-
-
 }
 
+class PhysicsUpdate
+{
+    public void Update(Player player)
+    {
+        player.onGround = Physics2D.Raycast(player.transform.position, Vector2.down + Vector2.left, 0.85f, player.objectLayer) || Physics2D.Raycast(player.transform.position, Vector2.down + Vector2.right, 0.85f, player.objectLayer);
+        player.onLeftWall = Physics2D.Raycast(player.transform.position + new Vector3(0, -0.5f, 0), Vector2.left, 0.52f, player.objectLayer);
+        player.onRightWall = Physics2D.Raycast(player.transform.position + new Vector3(0, -0.5f, 0), Vector2.right, 0.52f, player.objectLayer);
+        player.onWall = player.onLeftWall || player.onRightWall;
 
+        if (player.forward == -1)
+            player.transform.localScale = new Vector3(-0.65f, 1, 1);
+        else
+            player.transform.localScale = new Vector3(0.65f, 1, 1);
 
+        if (player.onGround)
+        {
+            player.canDash = true;
+            player.slideTime = 10f;
+        }
+        if (player.onLeftWall)
+        {
+            if (Input.GetKey(KeyCode.RightArrow))
+                player.forward = 1;
+            else
+                player.forward = -1;
+        }
+        if (player.onRightWall)
+        {
+            if (Input.GetKey(KeyCode.LeftArrow))
+                player.forward = -1;
+            else
+                player.forward = 1;
+        }
 
+    }
+}
+
+class SpriteUpdate
+{
+    public void Update(Player player)
+    {
+        if (player.canDash)
+            player.playerObject.GetComponent<Renderer>().material.color = Color.blue;
+        else
+            player.playerObject.GetComponent<Renderer>().material.color = Color.green;
+
+    }
+}
