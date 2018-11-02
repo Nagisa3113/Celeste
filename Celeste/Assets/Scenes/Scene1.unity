@@ -401,12 +401,12 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 0
       value: 0.43066406
-      inSlope: 0.34388113
-      outSlope: 0.34388113
+      inSlope: 3.7488189
+      outSlope: 3.7488189
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
-      outWeight: 0.17929693
+      outWeight: 0.041292638
     - serializedVersion: 3
       time: 0.3
       value: 0.9
@@ -480,7 +480,7 @@ MonoBehaviour:
   normalGravity: 0
   maxFallSpeed: -7
   onGround: 0
-  h: 0
+  moveBase: 0
   timeCounter: 0
   moveSpeed: 8
   jumpSpeed: 8

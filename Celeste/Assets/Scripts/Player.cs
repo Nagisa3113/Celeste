@@ -23,7 +23,7 @@ public class Player : MonoBehaviour
     public float maxFallSpeed = -6;//最大下落速度
     public bool onGround;//是否在地面
 
-    public float h;//
+    public float moveBase = 0;
     public float timeCounter = 0;//移动计时器
     public float moveSpeed = 8;//移动速度
     public float jumpSpeed = 8;//跳跃速度
@@ -45,8 +45,7 @@ public class Player : MonoBehaviour
 
     PhysicsUpdate physics = new PhysicsUpdate();
     SpriteUpdate sprite = new SpriteUpdate();
-
-    InputHandler hi = new InputHandler();
+    InputHandler inputHandler = new InputHandler();
 
 
 
@@ -72,10 +71,10 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        physics.Update(this);
         state.Update();
         sprite.Update(this);
-        Command command = hi.handlerInput();
+
+        Command command = inputHandler.handlerInput();
         if (command != null)
             command.execute(this);
     }
@@ -83,35 +82,8 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-
-        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow))
-        {
-            timeCounter += Time.fixedDeltaTime;
-        }
-        else
-        {
-            timeCounter -= Time.fixedDeltaTime;
-        }
-
-        if (timeCounter > 0.3f) timeCounter = 0.3f;
-        if (timeCounter < 0) timeCounter = 0;
-
-
-        Vector2 velocity = playerRigidbody.velocity;
-        if (velocity.y < maxFallSpeed)
-        {
-            velocity.y = maxFallSpeed;
-            playerRigidbody.velocity = velocity;
-        }
-
-
-        if (Input.GetAxis("Horizontal") < 0)
-            forward = -1;
-        else if (Input.GetAxis("Horizontal") > 0)
-            forward = 1;
-
-
-
+        physics.Update(this);
+        inputHandler.Update(this);
         state.FixedUpdate();
     }
 
@@ -281,6 +253,14 @@ class PhysicsUpdate
             else
                 player.forward = 1;
         }
+
+        Vector2 velocity = player.playerRigidbody.velocity;
+        if (velocity.y < player.maxFallSpeed)
+        {
+            velocity.y = player.maxFallSpeed;
+            player.playerRigidbody.velocity = velocity;
+        }
+
 
     }
 }

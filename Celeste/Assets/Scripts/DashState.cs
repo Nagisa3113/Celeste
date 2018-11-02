@@ -23,6 +23,7 @@ public class DashState : IBaseState
 
     public void Update()
     {
+
     }
 
     public void FixedUpdate()

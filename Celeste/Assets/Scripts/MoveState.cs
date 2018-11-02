@@ -22,8 +22,10 @@ public class MoveState : IBaseState
             player.StartCoroutine("SlideMove");
         }
     }
+
     public void Update()
     {
+
     }
 
     public void FixedUpdate()
@@ -31,12 +33,11 @@ public class MoveState : IBaseState
         Vector2 velocity = player.playerRigidbody.velocity;
         if (player.onLeftWall && Input.GetKey(KeyCode.LeftArrow) || player.onRightWall && Input.GetKey(KeyCode.RightArrow))
         {
-
             player.playerRigidbody.velocity = new Vector2(0, -1);
         }
         else
         {
-            player.playerRigidbody.velocity = new Vector2(player.runCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed, velocity.y);
+            player.playerRigidbody.velocity = new Vector2(player.moveBase * Input.GetAxisRaw("Horizontal") * player.moveSpeed, velocity.y);
         }
     }
 

@@ -14,6 +14,7 @@ public class JumpState : IBaseState
     {
         this.player = player;
     }
+
     public void Enter()
     {
         player.slideJump = false;
@@ -33,7 +34,6 @@ public class JumpState : IBaseState
     {
 
     }
-
 
     public void FixedUpdate()
     {
@@ -55,21 +55,25 @@ public class JumpState : IBaseState
 
         }
 
-        else if (Input.GetKey(KeyCode.C) && jumpTimeCounter > 0)
+        else if(Input.GetKey(KeyCode.C) && jumpTimeCounter > 0)//为什么不能用while
         {
             velocity.y = player.jumpCurve.Evaluate(jumpTimeCounter) * player.jumpSpeed;
+
             if (isRun)
                 velocity.x = player.runCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
             else
-                velocity.x = player.moveCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
+                velocity.x = player.moveBase * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
 
             player.playerRigidbody.velocity = velocity;
 
             jumpTimeCounter -= Time.deltaTime;
         }
+
         else//如果不加else会只执行一次
             player.SetPlayerState(new MoveState(player));
     }
+
+
 
     public void Finish()
     {
