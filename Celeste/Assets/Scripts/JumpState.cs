@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class JumpState : IBaseState
+public class JumpState : FSMState
 {
     private Player player;
     private float jumpTimeCounter;//计时器
@@ -12,10 +12,13 @@ public class JumpState : IBaseState
 
     public JumpState(Player player)
     {
+        stateID = StateID.Jump;
         this.player = player;
+        AddTransition(Transition.ReMove, StateID.Move);
+        AddTransition(Transition.SlidePress, StateID.Slide);
     }
 
-    public void Enter()
+    public override void DoBeforeEntering()
     {
         player.slideJump = false;
         player.offJump = false;
@@ -27,35 +30,35 @@ public class JumpState : IBaseState
             isRun = true;
 
         Debug.Log("jump enter");
-
     }
 
-    public void Update()
+
+    public override void InputHandle()
     {
 
     }
 
-    public void FixedUpdate()
+    public override void Act()
     {
-        if (player.lastState is SlideState)
+        if (player.fsm.LastState is SlideState)
         {
             if (player.onLeftWall && player.forward == -1 || player.onRightWall && player.forward == 1)
             {
                 player.StartCoroutine("SlideJump");
                 if (player.slideJump)
-                    player.SetPlayerState(new SlideState(player));
+                    player.fsm.PerformTransition(Transition.SlidePress);
             }
 
             else
             {
                 player.StartCoroutine("OffJump");
                 if (player.offJump)
-                    player.SetPlayerState(new MoveState(player));
+                    player.fsm.PerformTransition(Transition.ReMove);
             }
 
         }
 
-        else if(Input.GetKey(KeyCode.C) && jumpTimeCounter > 0)//为什么不能用while
+        else if (Input.GetKey(KeyCode.C) && jumpTimeCounter > 0)//为什么不能用while
         {
             velocity.y = player.jumpCurve.Evaluate(jumpTimeCounter) * player.jumpSpeed;
 
@@ -66,16 +69,16 @@ public class JumpState : IBaseState
 
             player.playerRigidbody.velocity = velocity;
 
-            jumpTimeCounter -= Time.deltaTime;
+            jumpTimeCounter -= Time.fixedDeltaTime;
         }
 
         else//如果不加else会只执行一次
-            player.SetPlayerState(new MoveState(player));
+            player.fsm.PerformTransition(Transition.ReMove);
     }
 
 
 
-    public void Finish()
+    public override void DoBeforeLeaving()
     {
         player.playerRigidbody.gravityScale = player.normalGravity;
         Debug.Log("jump finish");

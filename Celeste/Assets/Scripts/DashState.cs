@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DashState : IBaseState
+public class DashState : FSMState
 {
     private Player player;
 
-
     public DashState(Player player)
     {
+        stateID = StateID.Dash;
         this.player = player;
+        AddTransition(Transition.ReMove, StateID.Move);
+        AddTransition(Transition.SlidePress, StateID.Slide);
     }
 
-    public void Enter()
+    public override void DoBeforeEntering()
     {
         player.playerRigidbody.gravityScale = 0;
         player.playerRigidbody.velocity = Vector2.zero;
@@ -21,22 +23,22 @@ public class DashState : IBaseState
         Debug.Log("dash enter");
     }
 
-    public void Update()
+    public override void InputHandle()
     {
 
     }
 
-    public void FixedUpdate()
+    public override void Act()
     {
         if (player.startDash == false)
-            player.SetPlayerState(new MoveState(player));
+            player.fsm.PerformTransition(Transition.ReMove);
 
-        if (player.lastState is SlideState && player.onWall)
-            player.SetPlayerState(new SlideState(player));
+        if (player.fsm.LastState is SlideState && player.onWall)
+            player.fsm.PerformTransition(Transition.SlidePress);
 
     }
 
-    public void Finish()
+    public override void DoBeforeLeaving()
     {
         player.playerRigidbody.gravityScale = player.normalGravity;
         Debug.Log("dash finish");

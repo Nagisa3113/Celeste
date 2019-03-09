@@ -8,8 +8,11 @@ public class Player : MonoBehaviour
     public Rigidbody2D playerRigidbody;
     public GameObject playerObject;
 
-    public IBaseState state;//当前状态
-    public IBaseState lastState;//上个状态度
+    public FSMSystem fsm = new FSMSystem();
+    public FSMState jumpState;
+    public FSMState moveState;
+    public FSMState dashState;
+    public FSMState slideState;
 
     public LayerMask objectLayer;//检测
 
@@ -47,36 +50,38 @@ public class Player : MonoBehaviour
     SpriteUpdate sprite = new SpriteUpdate();
     InputHandler inputHandler = new InputHandler();
 
+    private void Awake()
+    {
+        fsm = new FSMSystem();
+        moveState = new MoveState(this);
+        jumpState = new JumpState(this);
+        dashState = new DashState(this);
+        slideState = new SlideState(this);
 
+        fsm.AddState(moveState);
+        fsm.AddState(jumpState);
+        fsm.AddState(dashState);
+        fsm.AddState(slideState);
+    }
 
     private void Start()
     {
         playerRigidbody = GetComponent<Rigidbody2D>();
         normalGravity = playerRigidbody.gravityScale;
         playerRigidbody.velocity = Vector2.zero;
-        state = new MoveState(this);
-        lastState = null;
-    }
-
-
-    public void SetPlayerState(IBaseState newState)
-    {
-        lastState = state;
-        state.Finish();
-        newState.Enter();
-        state = newState;
 
     }
 
 
     private void Update()
     {
-        state.Update();
+
         sprite.Update(this);
 
-        Command command = inputHandler.handlerInput();
-        if (command != null)
-            command.execute(this);
+        fsm.CurrentState.InputHandle();
+
+        if (fsm.CurrentState != null)
+            fsm.CurrentState.Act();
     }
 
 
@@ -84,7 +89,6 @@ public class Player : MonoBehaviour
     {
         physics.Update(this);
         inputHandler.Update(this);
-        state.FixedUpdate();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -95,6 +99,7 @@ public class Player : MonoBehaviour
 
         }
     }
+
 
     public IEnumerator Dash()
     {
@@ -193,7 +198,7 @@ public class Player : MonoBehaviour
     {
         for (int i = 0; i < 7; i++)
         {
-            transform.Translate(new Vector2(forward, 0) * Time.deltaTime * 3f);
+            transform.Translate(new Vector2(forward, 0) * Time.fixedDeltaTime * 4f);
             yield return null;
         }
     }

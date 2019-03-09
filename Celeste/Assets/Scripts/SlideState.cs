@@ -2,43 +2,51 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SlideState : IBaseState
+public class SlideState : FSMState
 {
     private Player player;
 
     public SlideState(Player player)
     {
+        stateID = StateID.Slide;
         this.player = player;
+        AddTransition(Transition.ReMove, StateID.Move);
+        AddTransition(Transition.JumpPress, StateID.Jump);
     }
-    public void Enter()
+    public override void DoBeforeEntering()
     {
         player.playerRigidbody.gravityScale = 0;
         player.canDash = true;
         Debug.Log("slide enter");
     }
 
-    public void Update()
+
+    public override void InputHandle()
     {
-        player.slideTime -= Time.deltaTime;
+        if (Input.GetKeyDown(KeyCode.C))
+            player.fsm.PerformTransition(Transition.JumpPress);
+        //if (Input.GetKeyDown(KeyCode.X))
+            //player.fsm.PerformTransition(Transition.DashPress);
 
         if (Input.GetKeyUp(KeyCode.Z) || player.onWall == false || player.slideTime < 0)
         {
-            player.SetPlayerState(new MoveState(player));
+            player.fsm.PerformTransition(Transition.ReMove);
         }
-
     }
 
-
-    public void FixedUpdate()
+    public override void Act()
     {
+        player.slideTime -= Time.deltaTime;
+
+
+
         float v = Input.GetAxisRaw("Vertical");
         player.playerRigidbody.velocity = new Vector2(0, v * player.slideSpeed);
 
     }
 
-    public void Finish()
+    public override void DoBeforeLeaving()
     {
- 
         player.playerRigidbody.gravityScale = player.normalGravity;
         player.playerRigidbody.velocity = Vector2.zero;
         Debug.Log("slide finish");
