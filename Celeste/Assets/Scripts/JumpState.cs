@@ -10,6 +10,8 @@ public class JumpState : FSMState
     private bool isRun;
     private Vector2 velocity;
 
+   
+
     public JumpState(Player player)
     {
         stateID = StateID.Jump;
@@ -40,6 +42,7 @@ public class JumpState : FSMState
 
     public override void Act()
     {
+
         if (player.fsm.LastState is SlideState)
         {
             if (player.onLeftWall && player.forward == -1 || player.onRightWall && player.forward == 1)
@@ -58,7 +61,8 @@ public class JumpState : FSMState
 
         }
 
-        else if (Input.GetKey(KeyCode.C) && jumpTimeCounter > 0)//为什么不能用while
+
+        else if (Input.GetKey(KeyCode.C) && jumpTimeCounter > 0)//不能用while,会在一帧中执行完
         {
             velocity.y = player.jumpCurve.Evaluate(jumpTimeCounter) * player.jumpSpeed;
 
@@ -75,6 +79,7 @@ public class JumpState : FSMState
         else//如果不加else会只执行一次
             player.fsm.PerformTransition(Transition.ReMove);
     }
+
 
 
 

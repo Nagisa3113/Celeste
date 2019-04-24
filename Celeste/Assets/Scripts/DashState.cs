@@ -32,10 +32,6 @@ public class DashState : FSMState
     {
         if (player.startDash == false)
             player.fsm.PerformTransition(Transition.ReMove);
-
-        if (player.fsm.LastState is SlideState && player.onWall)
-            player.fsm.PerformTransition(Transition.SlidePress);
-
     }
 
     public override void DoBeforeLeaving()

@@ -23,10 +23,23 @@ public class SlideState : FSMState
 
     public override void InputHandle()
     {
+        if (player.onLeftWall)
+        {
+            if (Input.GetKey(KeyCode.RightArrow))
+                player.forward = 1;
+            else
+                player.forward = -1;
+        }
+        if (player.onRightWall)
+        {
+            if (Input.GetKey(KeyCode.LeftArrow))
+                player.forward = -1;
+            else
+                player.forward = 1;
+        }
+
         if (Input.GetKeyDown(KeyCode.C))
             player.fsm.PerformTransition(Transition.JumpPress);
-        //if (Input.GetKeyDown(KeyCode.X))
-            //player.fsm.PerformTransition(Transition.DashPress);
 
         if (Input.GetKeyUp(KeyCode.Z) || player.onWall == false || player.slideTime < 0)
         {

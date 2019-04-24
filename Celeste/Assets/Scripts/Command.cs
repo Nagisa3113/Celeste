@@ -25,4 +25,54 @@ class InputHandler
             player.forward = 1;
     }
 
+
+
+    public Command Handle()
+    {
+        if (Input.GetKeyDown(KeyCode.Z)) return ButtonZ;
+        if (Input.GetKeyDown(KeyCode.X)) return ButtonX;
+        if (Input.GetKeyDown(KeyCode.C)) return buttonC;
+
+        return null;
+    }
+
+    private
+    Command ButtonZ = new SlideCommand();
+    Command ButtonX = new DashCommand();
+    Command buttonC = new JumpCommand();
+
+
+}
+
+abstract class Command
+{
+    public virtual void Execute(Player player)
+    {
+
+    }
+
+}
+
+class JumpCommand:Command
+{
+    public override void Execute(Player player)
+    {
+
+    }
+}
+
+class DashCommand : Command
+{
+    public override void Execute(Player player)
+    {
+
+    }
+}
+
+class SlideCommand : Command
+{
+    public override void Execute(Player player)
+    {
+
+    }
 }

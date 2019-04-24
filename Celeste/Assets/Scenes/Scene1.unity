@@ -409,6 +409,10 @@ MonoBehaviour:
   slideTime: 100
   slideJump: 0
   offJump: 0
+  buffer_counter: 0
+  buffer_max: 10
+  coyote_counter: 0
+  coyote_max: 30
 --- !u!50 &264118538
 Rigidbody2D:
   serializedVersion: 4

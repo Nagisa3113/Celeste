@@ -46,6 +46,12 @@ public class Player : MonoBehaviour
     public bool slideJump;//爬墙跳跃
     public bool offJump;
 
+
+    public int buffer_counter;
+    public int buffer_max = 30;
+    public int coyote_counter;
+    public int coyote_max = 30;
+
     PhysicsUpdate physics = new PhysicsUpdate();
     SpriteUpdate sprite = new SpriteUpdate();
     InputHandler inputHandler = new InputHandler();
@@ -96,8 +102,38 @@ public class Player : MonoBehaviour
         if (collision.collider.tag == "Thorn")
         {
             playerObject.SetActive(false);
-
         }
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+
+        foreach(ContactPoint2D contact in collision.contacts)
+        {
+            if ((int)contact.normal.y == 1)
+            {
+                onGround = true;
+            }
+            if ((int)contact.normal.x == 1)
+            {
+                onLeftWall = true;
+            }
+            else if ((int)contact.normal.x == -1)
+            {
+                onRightWall = true;
+            }
+        }
+    
+
+    }
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+
+        //coyote_counter = 0;
+
+        onGround = false;
+        onLeftWall = false;
+        onRightWall = false;
     }
 
 
@@ -229,9 +265,9 @@ class PhysicsUpdate
 {
     public void Update(Player player)
     {
-        player.onGround = Physics2D.Raycast(player.transform.position, Vector2.down + Vector2.left, 0.85f, player.objectLayer) || Physics2D.Raycast(player.transform.position, Vector2.down + Vector2.right, 0.85f, player.objectLayer);
-        player.onLeftWall = Physics2D.Raycast(player.transform.position + new Vector3(0, -0.5f, 0), Vector2.left, 0.52f, player.objectLayer);
-        player.onRightWall = Physics2D.Raycast(player.transform.position + new Vector3(0, -0.5f, 0), Vector2.right, 0.52f, player.objectLayer);
+        //player.onGround = Physics2D.Raycast(player.transform.position, Vector2.down + Vector2.left, 0.85f, player.objectLayer) || Physics2D.Raycast(player.transform.position, Vector2.down + Vector2.right, 0.85f, player.objectLayer);
+        //player.onLeftWall = Physics2D.Raycast(player.transform.position + new Vector3(0, -0.5f, 0), Vector2.left, 0.52f, player.objectLayer);
+        //player.onRightWall = Physics2D.Raycast(player.transform.position + new Vector3(0, -0.5f, 0), Vector2.right, 0.52f, player.objectLayer);
         player.onWall = player.onLeftWall || player.onRightWall;
 
         if (player.forward == -1)
@@ -244,20 +280,7 @@ class PhysicsUpdate
             player.canDash = true;
             player.slideTime = 10f;
         }
-        if (player.onLeftWall)
-        {
-            if (Input.GetKey(KeyCode.RightArrow))
-                player.forward = 1;
-            else
-                player.forward = -1;
-        }
-        if (player.onRightWall)
-        {
-            if (Input.GetKey(KeyCode.LeftArrow))
-                player.forward = -1;
-            else
-                player.forward = 1;
-        }
+
 
         Vector2 velocity = player.playerRigidbody.velocity;
         if (velocity.y < player.maxFallSpeed)
