@@ -14,10 +14,11 @@ public class DashState : FSMState
 
     public override void DoBeforeEntering(Player player)
     {
-        player.playerRigidbody.gravityScale = 0;
-        player.playerRigidbody.velocity = Vector2.zero;
-        player.startDash = true;
+        player.GetComponent<Rigidbody2D>().gravityScale = 0;
+        player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+
         player.StartCoroutine("Dash");
+       
         Debug.Log("dash enter");
     }
 
@@ -28,13 +29,12 @@ public class DashState : FSMState
 
     public override void Update(Player player)
     {
-        if (player.startDash == false)
-            player.fsm.PerformTransition(Transition.ReMove, player);
+
     }
 
     public override void DoBeforeLeaving(Player player)
     {
-        player.playerRigidbody.gravityScale = player.normalGravity;
+        player.GetComponent<Rigidbody2D>().gravityScale = player.normalGravity;
         Debug.Log("dash finish");
     }
 

@@ -5,23 +5,26 @@ using UnityEngine;
 public class CameraFollow : MonoBehaviour
 {
 
-    public Vector3 offset;//偏移
-    public Transform playerPosition;//玩家位置
-    public Vector3 cameraVelocity = Vector3.zero;//初始跟随速度
-    public Transform pos1;//固定位置
+    public Transform pos1;//摄像机位置
     public Transform pos2;
 
+    Vector3 offset;//偏移
+    Transform playerPosition;//玩家位置
+    Vector3 cameraVelocity = Vector3.zero;//初始跟随速度
 
     // Use this for initialization
     void Start()
     {
         //offset = transform.position - playerPosition.transform.position;
         transform.position = pos1.position;
+
+        playerPosition = GameObject.FindWithTag("Player").transform;
     }
 
     // Update is called once per frame
     void Update()
     {
+
     }
 
     void FixedUpdate()

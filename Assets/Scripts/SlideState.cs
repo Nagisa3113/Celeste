@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class SlideState : FSMState
 {
+    float slideSpeed = 2;//爬墙速度
+    float slideTime = 30f;//最大爬墙时间
+    float slideCounter = 0f;//最大爬墙时间,待修复
 
     public SlideState()
     {
@@ -11,16 +14,22 @@ public class SlideState : FSMState
         AddTransition(Transition.ReMove, StateID.Move);
         AddTransition(Transition.JumpPress, StateID.Jump);
     }
+
     public override void DoBeforeEntering(Player player)
     {
-        player.playerRigidbody.gravityScale = 0;
+
+        player.GetComponent<Rigidbody2D>().gravityScale = 0;
+        slideCounter = slideTime;
+        //待验证
         player.canDash = true;
+
         Debug.Log("slide enter");
     }
 
 
     public override void InputHandle(Player player)
     {
+
         if (player.onLeftWall)
         {
             if (Input.GetKey(KeyCode.RightArrow))
@@ -28,7 +37,7 @@ public class SlideState : FSMState
             else
                 player.forward = -1;
         }
-        if (player.onRightWall)
+        else if (player.onRightWall)
         {
             if (Input.GetKey(KeyCode.LeftArrow))
                 player.forward = -1;
@@ -36,30 +45,55 @@ public class SlideState : FSMState
                 player.forward = 1;
         }
 
-        if (Input.GetKeyDown(KeyCode.C))
-            player.fsm.PerformTransition(Transition.JumpPress, player);
+        player.GetComponent<Rigidbody2D>().velocity 
+            = new Vector2(0, Input.GetAxisRaw("Vertical") * slideSpeed);
 
-        if (Input.GetKeyUp(KeyCode.Z) || player.onWall == false || player.slideTime < 0)
+        if (Input.GetKeyDown(KeyCode.C))
         {
-            player.fsm.PerformTransition(Transition.ReMove, player);
+            if (player.onLeftWall && player.forward == -1 
+                || player.onRightWall && player.forward == 1)
+            {
+                player.StartCoroutine("SlideJump");
+            }
+            else
+            {
+                player.StartCoroutine("OffJump");
+            }
         }
+
+
+
+        if (player.onWall == false)
+        {
+            if(Input.GetKey(KeyCode.UpArrow) 
+                && !Input.GetKey(KeyCode.LeftArrow) && !Input.GetKey(KeyCode.RightArrow))
+            {
+                player.StartCoroutine("SlideMove");
+            }
+            player.FSM.PerformTransition(Transition.ReMove, player);
+
+        }
+
+        if (Input.GetKeyUp(KeyCode.Z) || slideCounter < 0)
+        {
+            player.FSM.PerformTransition(Transition.ReMove, player);
+        }
+
     }
 
     public override void Update(Player player)
     {
-        player.slideTime -= Time.deltaTime;
+        player.canSlide = slideCounter > 0;
 
+        slideCounter -= Time.deltaTime;
 
-
-        float v = Input.GetAxisRaw("Vertical");
-        player.playerRigidbody.velocity = new Vector2(0, v * player.slideSpeed);
 
     }
 
     public override void DoBeforeLeaving(Player player)
     {
-        player.playerRigidbody.gravityScale = player.normalGravity;
-        player.playerRigidbody.velocity = Vector2.zero;
+        player.GetComponent<Rigidbody2D>().gravityScale = player.normalGravity;
+        player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         Debug.Log("slide finish");
     }
 
