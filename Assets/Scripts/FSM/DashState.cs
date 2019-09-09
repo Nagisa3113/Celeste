@@ -17,15 +17,11 @@ public class DashState : FSMState
         player.GetComponent<Rigidbody2D>().gravityScale = 0;
         player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
 
-        player.StartCoroutine("Dash");
-       
+        player.StartCoroutine(Dash(player));
+
         Debug.Log("dash enter");
     }
 
-    public override void InputHandle(Player player)
-    {
-
-    }
 
     public override void Update(Player player)
     {
@@ -37,5 +33,22 @@ public class DashState : FSMState
         player.GetComponent<Rigidbody2D>().gravityScale = player.normalGravity;
         Debug.Log("dash finish");
     }
+
+
+    public IEnumerator Dash(Player player)
+    {
+        int dashTime = 12;//冲刺持续时间
+        float dashSpeed = 15;//冲刺速度
+        player.canDash = false;
+        Vector2 direct = InputHandler.GetDashDirect(player);
+
+        for (int i = 0; i < dashTime; i++)
+        {
+            player.transform.Translate(direct * Time.deltaTime * dashSpeed);
+            yield return null;
+        }
+        player.FSM.PerformTransition(Transition.ReMove, player);
+    }
+
 
 }

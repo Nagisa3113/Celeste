@@ -1,33 +1,37 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 
 public class Player : MonoBehaviour
 {
-    public LayerMask objectLayer;//检测
+    public LayerMask objectLayer;
 
-    public AnimationCurve jumpCurve;//跳跃速度
+    /// <summary>
+    /// 速度曲线
+    /// </summary>
+    public AnimationCurve jumpCurve;
     public AnimationCurve moveCurve;
     public AnimationCurve runCurve;
     public AnimationCurve slowCurve;
 
     public int forward = 1;//玩家朝向，1为右，-1为左
 
-    public float normalGravity;//获得玩家重力
-    public float maxFallSpeed = -7;//最大下落速度
+    public float normalGravity;
+    public float maxFallSpeed = -10;
 
     public float moveBase;
     public float timeCounter;//移动计时器
     public float moveSpeed = 8;//移动速度
 
-    public bool onGround;//是否在地面
-    public bool canDash;//是否能冲刺
-    public bool canSlide;//是否能攀爬
+    public bool onGround;
+    public bool canDash;
+    public bool canSlide;
 
-    public bool onWall;//是否在墙上
-    public bool onLeftWall;//左边
-    public bool onRightWall;//右边  
+    public bool onWall;
+    public bool onLeftWall;
+    public bool onRightWall;
 
     //public int coyote_counter;
     //public int coyote_max = 30;
@@ -45,18 +49,24 @@ public class Player : MonoBehaviour
     SpriteUpdate sprite;
     InputHandler inputHandler;
 
+    public event Action<int> PosChangeEvent;
+
     void Awake()
     {
         fsm = new FSMSystem();
-
         FSM.AddState(new MoveState());
         FSM.AddState(new JumpState());
         FSM.AddState(new DashState());
         FSM.AddState(new SlideState());
 
-        physics = new PhysicsUpdate();
-        sprite = new SpriteUpdate();
+        physics = new PhysicsUpdate(this);
+        sprite = new SpriteUpdate(this);
         inputHandler = new InputHandler();
+
+
+        PosChangeEvent += Camera.main.GetComponent<SceneManager>().CameraFollow;
+        PosChangeEvent += Camera.main.GetComponent<SceneManager>().ArchivePosChange;
+
     }
 
     void Start()
@@ -69,33 +79,39 @@ public class Player : MonoBehaviour
     {
         sprite.Update(this);
 
-        FSM.CurrentState.InputHandle(this);
+        inputHandler.Update(this);
 
         if (FSM.CurrentState != null)
+        {
             FSM.CurrentState.Update(this);
+        }
+
+        if (PosChangeEvent != null)
+        {
+            if (transform.position.x < 14.5f)
+            {
+                PosChangeEvent(0);
+            }
+            if (transform.position.x > 14.5f)
+            {
+                PosChangeEvent(1);
+            }
+        }
     }
 
 
     void FixedUpdate()
     {
         physics.Update(this);
-        inputHandler.Update(this);
     }
 
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.collider.tag == "Thorn")
+        if (collision.gameObject.GetComponent<Interacitve>() != null)
         {
-            this.gameObject.SetActive(false);
+            collision.gameObject.GetComponent<Interacitve>().Interact(this);
         }
-
-        if (collision.collider.name == "DashGem")
-        {
-            collision.collider.gameObject.SetActive(false);
-            this.canDash = true;
-        }
-
     }
 
 
@@ -118,61 +134,17 @@ public class Player : MonoBehaviour
         onGround = false;
     }
 
-
-
-    public IEnumerator Dash()
-    {
-        int dashTime = 15;//冲刺持续时间
-        float dashSpeed = 12;//冲刺速度
-        canDash = false;
-        Vector2 direct = inputHandler.GetDashDirect(this);
-
-        for (int i = 0; i < dashTime; i++)
-        {
-            transform.Translate(direct * Time.deltaTime * dashSpeed);
-            yield return null;
-        }
-        fsm.PerformTransition(Transition.ReMove, this);
-    }
-
-    public IEnumerator SlideMove()
-    {
-        float speed = 4f;
-        for (int i = 0; i < 7; i++)
-        {
-            transform.Translate(new Vector2(forward, 0) * Time.fixedDeltaTime * speed);
-            yield return null;
-        }
-    }
-
-    public IEnumerator SlideJump()
-    {
-        float speed = 5f;
-        for (int i = 0; i < 15; i++)
-        {
-            Debug.Log(Time.fixedDeltaTime);
-            transform.Translate(Vector2.up * Time.fixedDeltaTime * speed);
-            yield return null;
-        }
-
-    }
-
-    public IEnumerator OffJump()
-    {
-        float speed = 10f;
-
-        for (int i = 0; i < 10; i++)
-        {
-            transform.Translate(new Vector2(forward, 0) * Time.fixedDeltaTime * speed
-                 + Vector2.up * Time.fixedDeltaTime * speed);
-            yield return null;
-        }
-    }
-
 }
 
 class PhysicsUpdate
 {
+
+    Rigidbody2D rigidbody2D;
+
+    public PhysicsUpdate(Player player)
+    {
+        rigidbody2D = player.GetComponent<Rigidbody2D>();
+    }
 
     public void Update(Player player)
     {
@@ -183,29 +155,29 @@ class PhysicsUpdate
 
         player.onWall = player.onLeftWall || player.onRightWall;
 
-        Vector2 velocity = player.GetComponent<Rigidbody2D>().velocity;
+        Vector2 velocity = rigidbody2D.velocity;
 
         if (velocity.y < player.maxFallSpeed)
         {
             velocity.y = player.maxFallSpeed;
-            player.GetComponent<Rigidbody2D>().velocity = velocity;
+            rigidbody2D.velocity = velocity;
         }
-
 
     }
 }
 
 class SpriteUpdate
 {
+    Renderer renderer;
+
+    public SpriteUpdate(Player player)
+    {
+        renderer = player.gameObject.GetComponent<Renderer>();
+    }
+
     public void Update(Player player)
     {
-        if (player.canDash)
-            player.gameObject.GetComponent<Renderer>().material.color = Color.blue;
-        else
-            player.gameObject.GetComponent<Renderer>().material.color = Color.green;
-
+        renderer.material.color = player.canDash ? Color.blue : Color.green;
     }
 }
-
-
 

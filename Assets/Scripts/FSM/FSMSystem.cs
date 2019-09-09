@@ -178,8 +178,6 @@ public abstract class FSMState
 
     public abstract void Update(Player player);
 
-    public abstract void InputHandle(Player player);
-
 } // class FSMState
 
 

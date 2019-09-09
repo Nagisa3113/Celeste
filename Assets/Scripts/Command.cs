@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-class InputHandler
+public class InputHandler
 {
     public void Update(Player player)
     {
@@ -11,7 +11,6 @@ class InputHandler
             player.timeCounter = player.timeCounter <= 0.3f ?
                 player.timeCounter += Time.fixedDeltaTime : 0.3f;
         }
-
         else
         {
             player.moveBase = player.slowCurve.Evaluate(player.timeCounter);
@@ -26,24 +25,22 @@ class InputHandler
     }
 
 
+    //Command Handle()
+    //{
+    //    if (Input.GetKeyDown(KeyCode.Z)) return ButtonZ;
+    //    if (Input.GetKeyDown(KeyCode.X)) return ButtonX;
+    //    if (Input.GetKeyDown(KeyCode.C)) return buttonC;
 
-    public Command Handle()
-    {
-        if (Input.GetKeyDown(KeyCode.Z)) return ButtonZ;
-        if (Input.GetKeyDown(KeyCode.X)) return ButtonX;
-        if (Input.GetKeyDown(KeyCode.C)) return buttonC;
-
-        return null;
-    }
-
-    private
-    Command ButtonZ = new SlideCommand();
-    Command ButtonX = new DashCommand();
-    Command buttonC = new JumpCommand();
+    //    return null;
+    //}
+    
+    //Command ButtonZ = new SlideCommand();
+    //Command ButtonX = new DashCommand();
+    //Command buttonC = new JumpCommand();
 
 
 
-    public Vector2 GetDashDirect(Player player)
+    public static Vector2 GetDashDirect(Player player)
     {
         Vector2 dashDirect;
 

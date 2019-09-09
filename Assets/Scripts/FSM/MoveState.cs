@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class MoveState : FSMState
 {
+    /// <summary>
+    /// input buffer
+    /// </summary>
     int buffer_counter;
     int buffer_max = 10;
 
@@ -24,7 +27,8 @@ public class MoveState : FSMState
 
     }
 
-    public override void InputHandle(Player player)
+
+    public override void Update(Player player)
     {
         Vector2 velocity;
 
@@ -68,12 +72,6 @@ public class MoveState : FSMState
         {
             player.FSM.PerformTransition(Transition.SlidePress, player);
         }
-
-
-    }
-
-    public override void Update(Player player)
-    {
 
     }
 

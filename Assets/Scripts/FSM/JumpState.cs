@@ -10,7 +10,6 @@ public class JumpState : FSMState
     float jumpTime = 0.27f;//最大跳跃时间
     bool isRun;
 
-
     public JumpState()
     {
         stateID = StateID.Jump;
@@ -30,13 +29,7 @@ public class JumpState : FSMState
 
         Debug.Log("jump enter");
     }
-
-
-    public override void InputHandle(Player player)
-    {
-
-    }
-
+ 
     public override void Update(Player player)
     {
         Vector2 velocity;
@@ -56,9 +49,14 @@ public class JumpState : FSMState
             jumpTimeCounter -= Time.fixedDeltaTime;
         }
 
+
+        else if(Input.GetKey(KeyCode.Z) && player.canSlide && player.onWall)
+        {
+            player.FSM.PerformTransition(Transition.SlidePress, player);
+        }
+
         else//如果不加else会只执行一次
             player.FSM.PerformTransition(Transition.ReMove, player);
-
 
     }
 
