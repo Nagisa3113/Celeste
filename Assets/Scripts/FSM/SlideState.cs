@@ -30,11 +30,26 @@ public class SlideState : FSMState
 
     public override void Update(Player player)
     {
+        if ((int)InputHandler.Instance.DirAxis.x == 0)
+        {
+            if (player.onLeftWall)
+            {
+                player.forward = -1;
+            }
+            else if (player.onRightWall)
+            {
+                player.forward = 1;
+            }
+        }
+
+        player.GetComponent<Rigidbody2D>().velocity
+            = new Vector2(0, InputHandler.Instance.DirAxis.y * slideSpeed);
+
         if (player.onWall == false)
         {
             if ((int)InputHandler.Instance.DirAxis.y == 1)
             {
-                player.StartCoroutine(SlideAutoMove(player));
+                player.StartCoroutine(SlideAutoMove(player, player.forward));
             }
 
             player.FSM.PerformTransition(Transition.ReMove, player);
@@ -51,15 +66,6 @@ public class SlideState : FSMState
         {
             player.FSM.PerformTransition(Transition.DashPress, player);
         }
-
-        player.forward = (int)InputHandler.Instance.DirAxis.x == 0 ?
-             player.onLeftWall ? -1 : 1 :
-             (int)InputHandler.Instance.DirAxis.x;
-
-
-        player.GetComponent<Rigidbody2D>().velocity
-            = new Vector2(0, InputHandler.Instance.DirAxis.y * slideSpeed);
-
 
         if (InputHandler.Instance.JumpButton.Down)
         {
@@ -78,12 +84,15 @@ public class SlideState : FSMState
     }
 
 
-    public IEnumerator SlideAutoMove(Player player)
+    public IEnumerator SlideAutoMove(Player player, int forward)
     {
+        Vector3 dir = Vector3.zero;
+        dir.x = forward;
+
         float speed = 4f;
         for (int i = 0; i < 7; i++)
         {
-            player.transform.Translate(new Vector2(player.forward, 0) * Time.fixedDeltaTime * speed);
+            player.transform.Translate(dir * Time.fixedDeltaTime * speed);
             yield return null;
         }
     }

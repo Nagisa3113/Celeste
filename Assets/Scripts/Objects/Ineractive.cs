@@ -3,7 +3,5 @@ using System.Collections;
 
 public abstract class Interacitve : MonoBehaviour
 {
-
-    public abstract void Interact(Player player);
-
+    public abstract void Interaction(Player player);
 }

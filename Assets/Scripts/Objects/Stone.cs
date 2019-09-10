@@ -19,14 +19,14 @@ public class Stone : Interacitve
         boxCollider2D = GetComponent<BoxCollider2D>();
     }
 
-    public override void Interact(Player player)
+    public override void Interaction(Player player)
     {
         if (!flag)
-            StartCoroutine(Interactive());
+            StartCoroutine(Fade());
     }
 
 
-    IEnumerator Interactive()
+    IEnumerator Fade()
     {
         flag = true;
 

@@ -69,7 +69,7 @@ public class InputButton
     ButtonType type;
 
     int buffer_counter;
-    int buffer_max = 10;
+    int buffer_max = 5;
 
     public bool Down { get; protected set; }
     public bool Held { get; protected set; }

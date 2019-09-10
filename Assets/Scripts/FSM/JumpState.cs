@@ -5,9 +5,9 @@ using UnityEngine;
 public class JumpState : FSMState
 {
 
-    float jumpSpeed = 8;//跳跃速度
+    float jumpSpeed = 11;//跳跃速度
     float jumpTimeCounter;//计时器
-    float jumpTime = 0.27f;//最大跳跃时间
+    float jumpTime = 0.22f;//最大跳跃时间
     bool isRun;
 
     public JumpState()
@@ -29,17 +29,16 @@ public class JumpState : FSMState
 
         Debug.Log("jump enter");
     }
- 
+
     public override void Update(Player player)
     {
         Vector2 velocity;
 
-
-        if (Input.GetKey(KeyCode.C) && jumpTimeCounter > 0)
+        if (InputHandler.Instance.JumpButton.Held && jumpTimeCounter > 0)
         {
 
             velocity.x = isRun
-                ? player.runCurve.Evaluate(player.timeCounter) * Input.GetAxisRaw("Horizontal") * player.moveSpeed
+                ? player.runCurve.Evaluate(player.timeCounter) * Input.GetAxis("Horizontal") * player.moveSpeed
                 : velocity.x = player.moveBase * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
 
             velocity.y = player.jumpCurve.Evaluate(jumpTimeCounter) * jumpSpeed;
@@ -49,15 +48,12 @@ public class JumpState : FSMState
             jumpTimeCounter -= Time.fixedDeltaTime;
         }
 
-
-        else if(Input.GetKey(KeyCode.Z) && player.canSlide && player.onWall)
+        else if (InputHandler.Instance.SlideButton.Held && player.canSlide && player.onWall)
         {
             player.FSM.PerformTransition(Transition.SlidePress, player);
         }
 
-        else//如果不加else会只执行一次
-            player.FSM.PerformTransition(Transition.ReMove, player);
-
+        player.FSM.PerformTransition(Transition.ReMove, player);
     }
 
 

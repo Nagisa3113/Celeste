@@ -18,16 +18,16 @@ public class DashGem : Interacitve
         boxCollider2D = GetComponent<BoxCollider2D>();
     }
 
-    public override void Interact(Player player)
+    public override void Interaction(Player player)
     {
         if (!flag)
         {
             player.canDash = true;
-            StartCoroutine(Interactive());
+            StartCoroutine(Fade());
         }
     }
 
-    IEnumerator Interactive()
+    IEnumerator Fade()
     {
         flag = true;
 

@@ -23,9 +23,11 @@ public class Player : MonoBehaviour
 
     public float moveBase;
     public float timeCounter;//移动计时器
-    public float moveSpeed = 8;//移动速度
+    public float moveSpeed = 10;//移动速度
+
 
     public bool onGround;
+
     public bool canDash;
     public bool canSlide;
 
@@ -35,8 +37,8 @@ public class Player : MonoBehaviour
 
     public Vector2 velocity;
 
-    //public int coyote_counter;
-    //public int coyote_max = 30;
+    public int coyote_counter;
+    public int coyote_max = 4;
 
     FSMSystem fsm;
     public FSMSystem FSM
@@ -51,6 +53,17 @@ public class Player : MonoBehaviour
     SpriteUpdate sprite;
 
     public event Action<int> PosChangeEvent;
+
+
+    IEnumerator CoyoteTimeUpdate()
+    {
+        while (coyote_counter > 0)
+        {
+            coyote_counter--;
+            yield return null;
+        }
+
+    }
 
     void Awake()
     {
@@ -74,6 +87,7 @@ public class Player : MonoBehaviour
     }
 
 
+
     void Update()
     {
         sprite.Update(this);
@@ -87,6 +101,9 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (coyote_counter > 0)
+            coyote_counter--;
+
         physics.Update(this);
 
         if (PosChangeEvent != null)
@@ -107,7 +124,7 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.GetComponent<Interacitve>() != null)
         {
-            collision.gameObject.GetComponent<Interacitve>().Interact(this);
+            collision.gameObject.GetComponent<Interacitve>().Interaction(this);
         }
     }
 
@@ -119,9 +136,9 @@ public class Player : MonoBehaviour
             if ((int)contact.normal.y == 1)
             {
                 onGround = true;
+                coyote_counter = coyote_max;
                 canDash = true;
                 canSlide = true;
-
             }
         }
     }
