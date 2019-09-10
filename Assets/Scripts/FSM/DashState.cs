@@ -37,10 +37,16 @@ public class DashState : FSMState
 
     public IEnumerator Dash(Player player)
     {
-        int dashTime = 12;//冲刺持续时间
-        float dashSpeed = 15;//冲刺速度
+        int dashTime = 15;//冲刺持续时间
+        float dashSpeed = 13;//冲刺速度
+
+        Vector2 direct = InputHandler.Instance.DirAxis;
+        if (direct == Vector2.zero)
+        {
+            direct.x = player.forward;
+        }
+
         player.canDash = false;
-        Vector2 direct = InputHandler.GetDashDirect(player);
 
         for (int i = 0; i < dashTime; i++)
         {

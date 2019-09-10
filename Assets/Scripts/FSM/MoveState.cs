@@ -7,8 +7,6 @@ public class MoveState : FSMState
     /// <summary>
     /// input buffer
     /// </summary>
-    int buffer_counter;
-    int buffer_max = 10;
 
     public MoveState()
     {
@@ -20,11 +18,9 @@ public class MoveState : FSMState
 
     public override void DoBeforeEntering(Player player)
     {
-
         player.GetComponent<Rigidbody2D>().gravityScale = player.normalGravity;
 
         Debug.Log("move enter");
-
     }
 
 
@@ -32,8 +28,8 @@ public class MoveState : FSMState
     {
         Vector2 velocity;
 
-        if (player.onLeftWall && Input.GetKey(KeyCode.LeftArrow)
-             || player.onRightWall && Input.GetKey(KeyCode.RightArrow))
+        if (player.onLeftWall && (int)InputHandler.Instance.DirAxis.x == -1
+             || player.onRightWall && (int)InputHandler.Instance.DirAxis.x == 1)
         {
             //为什么修改重力不行
             player.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -1);
@@ -45,30 +41,20 @@ public class MoveState : FSMState
             velocity.x = player.moveBase * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
             velocity.y = player.GetComponent<Rigidbody2D>().velocity.y;
             player.GetComponent<Rigidbody2D>().velocity = velocity;
-
         }
 
 
-        if (Input.GetKeyDown(KeyCode.C))
+        if (InputHandler.Instance.JumpButton.Down && player.onGround || player.onWall)
         {
-            buffer_counter = 0;
+            player.FSM.PerformTransition(Transition.JumpPress, player);
         }
 
-        if (buffer_counter < buffer_max)
-        {
-            buffer_counter++;
-            if (Input.GetKey(KeyCode.C) && player.onGround || player.onWall)
-                player.FSM.PerformTransition(Transition.JumpPress, player);
-        }
-
-
-        if (Input.GetKeyDown(KeyCode.X) && player.canDash)
+        if (InputHandler.Instance.DashButton.Down && player.canDash)
         {
             player.FSM.PerformTransition(Transition.DashPress, player);
         }
 
-
-        if (Input.GetKeyDown(KeyCode.Z) && player.canSlide && player.onWall)
+        if (InputHandler.Instance.SlideButton.Held && player.canSlide && player.onWall)
         {
             player.FSM.PerformTransition(Transition.SlidePress, player);
         }

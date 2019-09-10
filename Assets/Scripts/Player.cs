@@ -33,6 +33,8 @@ public class Player : MonoBehaviour
     public bool onLeftWall;
     public bool onRightWall;
 
+    public Vector2 velocity;
+
     //public int coyote_counter;
     //public int coyote_max = 30;
 
@@ -47,7 +49,6 @@ public class Player : MonoBehaviour
 
     PhysicsUpdate physics;
     SpriteUpdate sprite;
-    InputHandler inputHandler;
 
     public event Action<int> PosChangeEvent;
 
@@ -61,8 +62,6 @@ public class Player : MonoBehaviour
 
         physics = new PhysicsUpdate(this);
         sprite = new SpriteUpdate(this);
-        inputHandler = new InputHandler();
-
 
         PosChangeEvent += Camera.main.GetComponent<SceneManager>().CameraFollow;
         PosChangeEvent += Camera.main.GetComponent<SceneManager>().ArchivePosChange;
@@ -79,12 +78,16 @@ public class Player : MonoBehaviour
     {
         sprite.Update(this);
 
-        inputHandler.Update(this);
-
         if (FSM.CurrentState != null)
         {
             FSM.CurrentState.Update(this);
         }
+    }
+
+
+    void FixedUpdate()
+    {
+        physics.Update(this);
 
         if (PosChangeEvent != null)
         {
@@ -97,12 +100,6 @@ public class Player : MonoBehaviour
                 PosChangeEvent(1);
             }
         }
-    }
-
-
-    void FixedUpdate()
-    {
-        physics.Update(this);
     }
 
 
@@ -148,6 +145,8 @@ class PhysicsUpdate
 
     public void Update(Player player)
     {
+        player.velocity = rigidbody2D.velocity;
+
         player.onLeftWall
             = Physics2D.Raycast(player.transform.position + new Vector3(0, -0.5f, 0), Vector2.left, 0.52f, player.objectLayer);
         player.onRightWall
@@ -161,6 +160,22 @@ class PhysicsUpdate
         {
             velocity.y = player.maxFallSpeed;
             rigidbody2D.velocity = velocity;
+        }
+
+        if (Math.Abs(InputHandler.Instance.DirAxis.x) > 0.05f)
+        {
+            player.forward = InputHandler.Instance.DirAxis.x > 0 ? 1 : -1;
+
+            player.moveBase = player.moveCurve.Evaluate(player.timeCounter);
+
+            player.timeCounter = player.timeCounter <= 0.3f ?
+                player.timeCounter += Time.fixedDeltaTime : 0.3f;
+        }
+        else
+        {
+            player.moveBase = player.slowCurve.Evaluate(player.timeCounter);
+            player.timeCounter = player.timeCounter >= 0f ?
+            player.timeCounter -= Time.fixedDeltaTime : 0f;
         }
 
     }

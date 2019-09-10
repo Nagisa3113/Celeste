@@ -548,6 +548,7 @@ GameObject:
   - component: {fileID: 866399498}
   - component: {fileID: 866399497}
   - component: {fileID: 866399496}
+  - component: {fileID: 866399502}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -687,6 +688,7 @@ MonoBehaviour:
   onWall: 0
   onLeftWall: 0
   onRightWall: 0
+  velocity: {x: 0, y: 0}
 --- !u!50 &866399497
 Rigidbody2D:
   serializedVersion: 4
@@ -798,6 +800,19 @@ RectTransform:
   m_AnchoredPosition: {x: -6.64, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &866399502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 866399495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b38bfffd1405d4bc1a5cdfbc2f290c37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DirAxis: {x: 0, y: 0}
 --- !u!1 &975771535
 GameObject:
   m_ObjectHideFlags: 0

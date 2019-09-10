@@ -13,6 +13,8 @@ public class SlideState : FSMState
         stateID = StateID.Slide;
         AddTransition(Transition.ReMove, StateID.Move);
         AddTransition(Transition.JumpPress, StateID.Jump);
+        AddTransition(Transition.DashPress, StateID.Dash);
+
     }
 
     public override void DoBeforeEntering(Player player)
@@ -28,41 +30,44 @@ public class SlideState : FSMState
 
     public override void Update(Player player)
     {
+        if (player.onWall == false)
+        {
+            if ((int)InputHandler.Instance.DirAxis.y == 1)
+            {
+                player.StartCoroutine(SlideAutoMove(player));
+            }
 
-        if (player.onLeftWall)
-            player.forward = Input.GetKey(KeyCode.RightArrow) ? 1 : -1;
-        else if (player.onRightWall)
-            player.forward = Input.GetKey(KeyCode.LeftArrow) ? -1 : 1;
+            player.FSM.PerformTransition(Transition.ReMove, player);
+
+        }
+
+        if (InputHandler.Instance.SlideButton.Up || slideCounter < 0)
+        {
+            player.FSM.PerformTransition(Transition.ReMove, player);
+        }
+
+
+        if (InputHandler.Instance.DashButton.Down && player.canDash)
+        {
+            player.FSM.PerformTransition(Transition.DashPress, player);
+        }
+
+        player.forward = (int)InputHandler.Instance.DirAxis.x == 0 ?
+             player.onLeftWall ? -1 : 1 :
+             (int)InputHandler.Instance.DirAxis.x;
 
 
         player.GetComponent<Rigidbody2D>().velocity
-            = new Vector2(0, Input.GetAxisRaw("Vertical") * slideSpeed);
+            = new Vector2(0, InputHandler.Instance.DirAxis.y * slideSpeed);
 
-        if (Input.GetKeyDown(KeyCode.C))
+
+        if (InputHandler.Instance.JumpButton.Down)
         {
             player.FSM.PerformTransition(Transition.JumpPress, player);
         }
 
-
-        if (player.onWall == false)
-        {
-            if (Input.GetKey(KeyCode.UpArrow)
-                && !Input.GetKey(KeyCode.LeftArrow) && !Input.GetKey(KeyCode.RightArrow))
-            {
-                player.StartCoroutine(SlideAutoMove(player));
-            }
-            player.FSM.PerformTransition(Transition.ReMove, player);
-
-        }
-
-        if (Input.GetKeyUp(KeyCode.Z) || slideCounter < 0)
-        {
-            player.FSM.PerformTransition(Transition.ReMove, player);
-        }
-
         player.canSlide = slideCounter > 0;
         slideCounter -= Time.deltaTime;
-
     }
 
     public override void DoBeforeLeaving(Player player)
