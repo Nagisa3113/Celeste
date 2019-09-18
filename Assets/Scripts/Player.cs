@@ -54,17 +54,6 @@ public class Player : MonoBehaviour
 
     public event Action<int> PosChangeEvent;
 
-
-    IEnumerator CoyoteTimeUpdate()
-    {
-        while (coyote_counter > 0)
-        {
-            coyote_counter--;
-            yield return null;
-        }
-
-    }
-
     void Awake()
     {
         fsm = new FSMSystem();
@@ -136,7 +125,6 @@ public class Player : MonoBehaviour
             if ((int)contact.normal.y == 1)
             {
                 onGround = true;
-                coyote_counter = coyote_max;
                 canDash = true;
                 canSlide = true;
             }
@@ -171,6 +159,14 @@ class PhysicsUpdate
 
         player.onWall = player.onLeftWall || player.onRightWall;
 
+
+
+        if(player.onGround == true)
+        {
+            player.coyote_counter = player.coyote_max;
+        }
+
+
         Vector2 velocity = rigidbody2D.velocity;
 
         if (velocity.y < player.maxFallSpeed)
@@ -191,7 +187,7 @@ class PhysicsUpdate
         else
         {
             player.moveBase = player.slowCurve.Evaluate(player.timeCounter);
-            player.timeCounter = player.timeCounter >= 0f ?
+            player.timeCounter = player.timeCounter > 0f ?
             player.timeCounter -= Time.fixedDeltaTime : 0f;
         }
 
