@@ -60,14 +60,11 @@ public class SlideState : FSMState
         {
             player.FSM.PerformTransition(Transition.ReMove, player);
         }
-
-
-        if (InputHandler.Instance.DashButton.Down && player.canDash)
+        else if (InputHandler.Instance.DashButton.Down && player.canDash)
         {
             player.FSM.PerformTransition(Transition.DashPress, player);
         }
-
-        if (InputHandler.Instance.JumpButton.Down)
+        else if (InputHandler.Instance.JumpButton.Down)
         {
             player.FSM.PerformTransition(Transition.JumpPress, player);
         }

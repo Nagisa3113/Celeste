@@ -9,7 +9,6 @@ public class DashState : FSMState
     {
         stateID = StateID.Dash;
         AddTransition(Transition.ReMove, StateID.Move);
-        AddTransition(Transition.SlidePress, StateID.Slide);
     }
 
     public override void DoBeforeEntering(Player player)

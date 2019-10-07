@@ -68,6 +68,9 @@ public class InputButton
 {
     ButtonType type;
 
+    /// <summary>
+    /// The input buffer counter.
+    /// </summary>
     int buffer_counter;
     int buffer_max = 5;
 

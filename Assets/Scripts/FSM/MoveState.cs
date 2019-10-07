@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class MoveState : FSMState
 {
-    /// <summary>
-    /// input buffer
-    /// </summary>
 
     public MoveState()
     {
@@ -31,7 +28,6 @@ public class MoveState : FSMState
         if (player.onLeftWall && (int)InputHandler.Instance.DirAxis.x == -1
              || player.onRightWall && (int)InputHandler.Instance.DirAxis.x == 1)
         {
-
             //player.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -1);
             player.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
             player.GetComponent<Rigidbody2D>().gravityScale = 5f;
@@ -49,13 +45,11 @@ public class MoveState : FSMState
         {
             player.FSM.PerformTransition(Transition.JumpPress, player);
         }
-
-        if (InputHandler.Instance.DashButton.Down && player.canDash)
+        else if (InputHandler.Instance.DashButton.Down && player.canDash)
         {
             player.FSM.PerformTransition(Transition.DashPress, player);
         }
-
-        if (InputHandler.Instance.SlideButton.Held && player.canSlide && player.onWall)
+        else if (InputHandler.Instance.SlideButton.Held && player.canSlide && player.onWall)
         {
             player.FSM.PerformTransition(Transition.SlidePress, player);
         }

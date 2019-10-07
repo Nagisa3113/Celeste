@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class JumpState : FSMState
 {
-
     float jumpSpeed = 11;//跳跃速度
     float jumpTimeCounter;//计时器
     float jumpTime = 0.22f;//最大跳跃时间
@@ -36,7 +35,6 @@ public class JumpState : FSMState
 
         if (InputHandler.Instance.JumpButton.Held && jumpTimeCounter > 0)
         {
-
             velocity.x = isRun
                 ? player.runCurve.Evaluate(player.timeCounter) * Input.GetAxis("Horizontal") * player.moveSpeed
                 : velocity.x = player.moveBase * Input.GetAxisRaw("Horizontal") * player.moveSpeed;
@@ -48,12 +46,14 @@ public class JumpState : FSMState
             jumpTimeCounter -= Time.fixedDeltaTime;
         }
 
-        else if (InputHandler.Instance.SlideButton.Held && player.canSlide && player.onWall)
+        if (InputHandler.Instance.SlideButton.Held && player.canSlide && player.onWall)
         {
             player.FSM.PerformTransition(Transition.SlidePress, player);
         }
-
-        player.FSM.PerformTransition(Transition.ReMove, player);
+        else
+        {
+            player.FSM.PerformTransition(Transition.ReMove, player);
+        }
     }
 
 

@@ -8,35 +8,36 @@ public class Player : MonoBehaviour
 {
     public LayerMask objectLayer;
 
-    /// <summary>
-    /// 速度曲线
-    /// </summary>
     public AnimationCurve jumpCurve;
     public AnimationCurve moveCurve;
     public AnimationCurve runCurve;
     public AnimationCurve slowCurve;
 
-    public int forward = 1;//玩家朝向，1为右，-1为左
+    public int forward = 1;//1 for left,-1 for right
 
     public float normalGravity;
-    public float maxFallSpeed = -10;
 
     public float moveBase;
-    public float timeCounter;//移动计时器
-    public float moveSpeed = 10;//移动速度
+    public float timeCounter;
+    public float moveSpeed = 8;
 
+    public float maxFallSpeed = -15;
 
     public bool onGround;
 
     public bool canDash;
     public bool canSlide;
 
-    public bool onWall;
     public bool onLeftWall;
     public bool onRightWall;
+    public bool onWall
+    {
+        get { return onLeftWall || onRightWall; }
+    }
 
-    public Vector2 velocity;
-
+    /// <summary>
+    /// player can jump while left ground
+    /// </summary>
     public int coyote_counter;
     public int coyote_max = 4;
 
@@ -44,9 +45,7 @@ public class Player : MonoBehaviour
     public FSMSystem FSM
     {
         get
-        {
-            return fsm;
-        }
+        { return fsm; }
     }
 
     PhysicsUpdate physics;
@@ -57,10 +56,10 @@ public class Player : MonoBehaviour
     void Awake()
     {
         fsm = new FSMSystem();
-        FSM.AddState(new MoveState());
-        FSM.AddState(new JumpState());
-        FSM.AddState(new DashState());
-        FSM.AddState(new SlideState());
+        fsm.AddState(new MoveState());
+        fsm.AddState(new JumpState());
+        fsm.AddState(new DashState());
+        fsm.AddState(new SlideState());
 
         physics = new PhysicsUpdate(this);
         sprite = new SpriteUpdate(this);
@@ -76,36 +75,26 @@ public class Player : MonoBehaviour
     }
 
 
-
     void Update()
     {
         sprite.Update(this);
-
-        if (FSM.CurrentState != null)
-        {
-            FSM.CurrentState.Update(this);
-        }
     }
-
 
     void FixedUpdate()
     {
-        if (coyote_counter > 0)
-            coyote_counter--;
+        fsm.CurrentState?.Update(this);
 
         physics.Update(this);
 
-        if (PosChangeEvent != null)
+        if (transform.position.x < 14.5f)
         {
-            if (transform.position.x < 14.5f)
-            {
-                PosChangeEvent(0);
-            }
-            if (transform.position.x > 14.5f)
-            {
-                PosChangeEvent(1);
-            }
+            PosChangeEvent?.Invoke(0);
         }
+        else if (transform.position.x > 14.5f)
+        {
+            PosChangeEvent?.Invoke(1);
+        }
+
     }
 
 
@@ -140,39 +129,36 @@ public class Player : MonoBehaviour
 
 class PhysicsUpdate
 {
-
     Rigidbody2D rigidbody2D;
+
+    Vector2 limitedVelocity;
 
     public PhysicsUpdate(Player player)
     {
         rigidbody2D = player.GetComponent<Rigidbody2D>();
+        limitedVelocity.y = player.maxFallSpeed;
     }
 
     public void Update(Player player)
     {
-        player.velocity = rigidbody2D.velocity;
+        player.coyote_counter = player.coyote_counter > 0 ?
+             player.coyote_counter - 1 : 0;
+
+
+        if (rigidbody2D.velocity.y < player.maxFallSpeed)
+        {
+            limitedVelocity.x = rigidbody2D.velocity.x;
+            rigidbody2D.velocity = limitedVelocity;
+        }
 
         player.onLeftWall
             = Physics2D.Raycast(player.transform.position + new Vector3(0, -0.5f, 0), Vector2.left, 0.52f, player.objectLayer);
         player.onRightWall
             = Physics2D.Raycast(player.transform.position + new Vector3(0, -0.5f, 0), Vector2.right, 0.52f, player.objectLayer);
 
-        player.onWall = player.onLeftWall || player.onRightWall;
-
-
-
-        if(player.onGround == true)
+        if (player.onGround == true)
         {
             player.coyote_counter = player.coyote_max;
-        }
-
-
-        Vector2 velocity = rigidbody2D.velocity;
-
-        if (velocity.y < player.maxFallSpeed)
-        {
-            velocity.y = player.maxFallSpeed;
-            rigidbody2D.velocity = velocity;
         }
 
         if (Math.Abs(InputHandler.Instance.DirAxis.x) > 0.05f)

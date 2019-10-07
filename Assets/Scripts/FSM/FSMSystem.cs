@@ -311,13 +311,8 @@ public class FSMSystem
                 lastState = currentState;
                 currentState = state;
 
-
                 // Reset the state to its desired condition before it can reason or act
                 currentState.DoBeforeEntering(player);
-
-
-
-
                 break;
             }
         }

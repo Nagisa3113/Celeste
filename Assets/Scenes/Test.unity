@@ -548,7 +548,6 @@ GameObject:
   - component: {fileID: 866399498}
   - component: {fileID: 866399497}
   - component: {fileID: 866399496}
-  - component: {fileID: 866399502}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -686,18 +685,16 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   forward: 1
-  normalGravity: 0
-  maxFallSpeed: -6
+  normalGravity: 8
   moveBase: 0
   timeCounter: 0
   moveSpeed: 8
+  maxFallSpeed: -15
   onGround: 0
   canDash: 0
   canSlide: 0
-  onWall: 0
   onLeftWall: 0
   onRightWall: 0
-  velocity: {x: 0, y: 0}
   coyote_counter: 0
   coyote_max: 4
 --- !u!50 &866399497
@@ -811,19 +808,6 @@ RectTransform:
   m_AnchoredPosition: {x: -6.64, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &866399502
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 866399495}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b38bfffd1405d4bc1a5cdfbc2f290c37, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DirAxis: {x: 0, y: 0}
 --- !u!1 &975771535
 GameObject:
   m_ObjectHideFlags: 0
@@ -958,6 +942,50 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1152397187}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1167597045
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1167597047}
+  - component: {fileID: 1167597046}
+  m_Layer: 0
+  m_Name: InputSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1167597046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167597045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b38bfffd1405d4bc1a5cdfbc2f290c37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DirAxis: {x: 0, y: 0}
+--- !u!4 &1167597047
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167597045}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1196014715
 GameObject:
   m_ObjectHideFlags: 0
