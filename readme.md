@@ -1,9 +1,8 @@
 
 # Celeste
-- a replica of Celeste in C#, Unity
-- use a simple Finite-State-Machine(FSM) framework
-- not any sprite but only cubes
+a replica of Celeste in C#, Unity
 
+- use a simple Finite-State-Machine(FSM) framework
 
 ## Character Controller
 - use AnimationCurve to controll velocity precisely
